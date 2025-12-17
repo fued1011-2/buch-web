@@ -1,0 +1,24 @@
+import { type Config } from 'prettier';
+
+const config: Config = {
+    plugins: ['@prettier/plugin-oxc'],
+    singleQuote: true,
+    tabWidth: 2,
+    trailingComma: 'all',
+    overrides: [
+        {
+            files: ['*.ts', '*.mts', '*.js', '*.mjs', '*.cjs'],
+            options: {
+                tabWidth: 4,
+            },
+        },
+        {
+            files: ['*.yml', '*.yaml'],
+            options: {
+                singleQuote: false,
+            },
+        },
+    ],
+};
+
+export default config;
