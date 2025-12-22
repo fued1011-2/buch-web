@@ -9,8 +9,23 @@ import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 
 import { AuthProvider } from '../context/AuthContext';
 
-const theme = createTheme({});
-
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#044878',
+    },
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          textTransform: 'none',
+          fontWeight: 700,
+        },
+      },
+    },
+  },
+});
 export function Providers({ children }: { children: ReactNode }) {
   return (
     <AppRouterCacheProvider>
