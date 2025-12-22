@@ -1,66 +1,60 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import Image from 'next/image';
+import { Box, Paper, Typography } from '@mui/material';
+import { HomeSearchCard } from '../components/HomeSearchCard';
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+      {/* HERO */}
+      <Paper
+        elevation={6}
+        sx={{
+          width: 'min(1400px, 92vw)',
+          borderRadius: 2,
+          overflow: 'hidden',
+          position: 'relative',
+          mt: 2,
+        }}
+      >
+        <Box sx={{ position: 'relative', height: { xs: 220, sm: 300, md: 340 } }}>
+          <Image
+            src="/Homepage_Image.png"
+            alt="Bibliothek"
+            fill
+            priority
+            style={{ objectFit: 'cover' }}
+          />
+        </Box>
+
+        {/* Overlay-Text */}
+        <Box
+          sx={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: { xs: 70, sm: 90 },
+            bgcolor: 'rgba(255,255,255,0.75)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            px: 2,
+          }}
+        >
+          <Typography
+            variant="h5"
+            sx={{
+              fontWeight: 800,
+              textAlign: 'center',
+            }}
           >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+            Willkommen in unserem online Buchhandel!
+          </Typography>
+        </Box>
+      </Paper>
+
+      {/* SEARCH CARD */}
+      <HomeSearchCard />
+    </Box>
   );
 }

@@ -24,6 +24,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
 import MenuIcon from '@mui/icons-material/Menu';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
 
 import { useAuth } from '../context/AuthContext';
 
@@ -178,9 +179,12 @@ export function AppShell({ children }: Props) {
           }}
         >
           <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
-            <Typography variant="h6" sx={{ fontWeight: 700 }}>
-              Buch-Web
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <MenuBookIcon sx={{ color: '#044878' }} />
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                Buch-Web
+              </Typography>
+            </Box>
 
             {authenticated ? (
               <Button
@@ -195,7 +199,7 @@ export function AppShell({ children }: Props) {
                 component={Link}
                 href="/login"
                 startIcon={<LoginIcon />}
-                sx={{ textTransform: 'none', fontWeight: 700 }}
+                sx={{ textTransform: 'none', fontWeight: 700, color: 'black' }}
               >
                 Login
               </Button>
