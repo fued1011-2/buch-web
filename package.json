@@ -3,13 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-  "dev": "next dev",
-  "build": "next build",
-  "start": "next start",
-  "lint": "eslint .",
-  "lint:fix": "eslint . --fix",
-  "format": "prettier . --write",
-  "format:check": "prettier . --check"
+    "dev": "next dev --port 3001",
+    "build": "next build",
+    "start": "next start --port 3001",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check"
   },
   "dependencies": {
     "@emotion/cache": "^11.14.0",
@@ -18,7 +18,7 @@
     "@mui/icons-material": "^7.3.6",
     "@mui/material": "^7.3.6",
     "@mui/material-nextjs": "^7.3.6",
-    "next": "^16.0.10",
+    "next": "^16.1.1",
     "react": "^19.2.3",
     "react-dom": "^19.2.3"
   },
@@ -28,10 +28,10 @@
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9.39.2",
-    "eslint-config-next": "^16.0.10",
+    "eslint-config-next": "^16.1.1",
     "eslint-config-prettier": "^10.1.8",
     "prettier": "^3.7.4",
     "typescript": "^5"
   },
-  "packageManager": "pnpm@10.26.0+sha512.3b3f6c725ebe712506c0ab1ad4133cf86b1f4b687effce62a9b38b4d72e3954242e643190fc51fa1642949c735f403debd44f5cb0edd657abe63a8b6a7e1e402"
+  "packageManager": "pnpm@10.26.1+sha512.664074abc367d2c9324fdc18037097ce0a8f126034160f709928e9e9f95d98714347044e5c3164d65bd5da6c59c6be362b107546292a8eecb7999196e5ce58fa"
 }
