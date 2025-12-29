@@ -1,38 +1,68 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { createContext, useContext, useMemo, useState } from 'react';
-import { clearAccessToken, getAccessToken, setAccessToken } from '../lib/auth';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+
+type User = {
+  username: string;
+  roles: string[];
+};
 
 type AuthContextValue = {
-  authenticated: boolean;
-  loginWithAccessToken: (token: string) => void;
+  accessToken: string | null;
+  user: User | null;
+  isAuthenticated: boolean;
+  isAdmin: boolean;
+  loginWithAccessToken: (accessToken: string, user?: User | null) => void;
   logout: () => void;
 };
 
-const AuthContext = createContext<AuthContextValue | null>(null);
+const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+
+const ACCESS_TOKEN_KEY = 'accessToken';
+const USER_KEY = 'user';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setTokenState] = useState<string | null>(() => getAccessToken());
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
 
-  const loginWithAccessToken = (newToken: string) => {
+  useEffect(() => {
+    const storedToken = localStorage.getItem(ACCESS_TOKEN_KEY);
+    if (storedToken) setAccessToken(storedToken);
+
+    const storedUser = localStorage.getItem(USER_KEY);
+    if (storedUser) setUser(JSON.parse(storedUser) as User);
+  }, []);
+
+  const loginWithAccessToken = (newToken: string, newUser: User | null = null) => {
     setAccessToken(newToken);
-    setTokenState(newToken);
+    localStorage.setItem(ACCESS_TOKEN_KEY, newToken);
+
+    setUser(newUser);
+    localStorage.setItem(USER_KEY, JSON.stringify(newUser));
   };
 
   const logout = () => {
-    clearAccessToken();
-    setTokenState(null);
+    setAccessToken(null);
+    setUser(null);
+    localStorage.removeItem(ACCESS_TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
   };
 
-  const value = useMemo<AuthContextValue>(
-    () => ({
-      authenticated: Boolean(token),
+  const value = useMemo<AuthContextValue>(() => {
+    const isAuthenticated = !!accessToken;
+    const roles = user?.roles ?? [];
+    const isAdmin = roles.includes('admin');
+
+    return {
+      accessToken,
+      user,
+      isAuthenticated,
+      isAdmin,
       loginWithAccessToken,
       logout,
-    }),
-    [token],
-  );
+    };
+  }, [accessToken, user]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
