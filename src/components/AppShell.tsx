@@ -190,7 +190,7 @@ export function AppShell({ children }: Props) {
               <Button
                 onClick={logout}
                 startIcon={<LogoutIcon />}
-                sx={{ textTransform: 'none', fontWeight: 700 }}
+                sx={{ textTransform: 'none', fontWeight: 700, color: 'black'  }}
               >
                 Logout
               </Button>
