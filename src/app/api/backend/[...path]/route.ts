@@ -27,12 +27,10 @@ async function proxy(req: NextRequest, path: string[]) {
     body,
   });
 
-  const data = await upstream.arrayBuffer();
-
   const responseHeaders = new Headers(upstream.headers);
   responseHeaders.delete('content-encoding');
 
-  return new NextResponse(data, {
+  return new NextResponse(upstream.body, {
     status: upstream.status,
     headers: responseHeaders,
   });
