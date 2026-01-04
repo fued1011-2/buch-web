@@ -18,10 +18,25 @@ type AuthContextValue = {
   logout: () => void;
 };
 
+type JwtPayload = {
+  preferred_username?: string;
+  resource_access?: Record<string, { roles?: string[] }>;
+};
+
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 const ACCESS_TOKEN_KEY = 'accessToken';
 const USER_KEY = 'user';
+
+function userFromAccessToken(accessToken: string): User {
+  const decoded = jwtDecode<JwtPayload>(accessToken);
+
+  const username = decoded.preferred_username ?? 'unknown';
+
+  const roles = decoded.resource_access?.['nest-client']?.roles ?? [];
+
+  return { username, roles };
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [accessToken, setAccessToken] = useState<string | null>(null);
@@ -36,11 +51,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const loginWithAccessToken = (newToken: string, newUser: User | null = null) => {
+    const derivedUser = newUser ?? userFromAccessToken(newToken);
+    
     setAccessToken(newToken);
     localStorage.setItem(ACCESS_TOKEN_KEY, newToken);
 
-    setUser(newUser);
-    localStorage.setItem(USER_KEY, JSON.stringify(newUser));
+    setUser(derivedUser);
+    localStorage.setItem(USER_KEY, JSON.stringify(derivedUser));
   };
 
   const logout = () => {
