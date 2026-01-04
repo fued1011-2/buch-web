@@ -2,6 +2,7 @@
 
 import type { ReactNode } from 'react';
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { jwtDecode } from 'jwt-decode';
 
 type User = {
   username: string;
@@ -11,7 +12,7 @@ type User = {
 type AuthContextValue = {
   accessToken: string | null;
   user: User | null;
-  isAuthenticated: boolean;
+  authenticated: boolean;
   isAdmin: boolean;
   loginWithAccessToken: (accessToken: string, user?: User | null) => void;
   logout: () => void;
@@ -50,14 +51,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const value = useMemo<AuthContextValue>(() => {
-    const isAuthenticated = !!accessToken;
+    const authenticated = !!accessToken;
     const roles = user?.roles ?? [];
     const isAdmin = roles.includes('admin');
 
     return {
       accessToken,
       user,
-      isAuthenticated,
+      authenticated,
       isAdmin,
       loginWithAccessToken,
       logout,

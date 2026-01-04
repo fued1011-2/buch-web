@@ -27,6 +27,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 
 import { useAuth } from '../context/AuthContext';
+import { Person2 } from '@mui/icons-material';
 
 const drawerWidthCollapsed = 72;
 const drawerWidthExpanded = 240;
@@ -39,7 +40,7 @@ type Props = {
 
 export function AppShell({ children }: Props) {
   const pathname = usePathname();
-  const { authenticated, logout } = useAuth();
+  const { authenticated, user, logout } = useAuth();
 
   const [open, setOpen] = useState(false);
 
@@ -187,13 +188,19 @@ export function AppShell({ children }: Props) {
             </Box>
 
             {authenticated ? (
-              <Button
-                onClick={logout}
-                startIcon={<LogoutIcon />}
-                sx={{ textTransform: 'none', fontWeight: 700, color: 'black'  }}
-              >
-                Logout
-              </Button>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Person2/>
+                <Typography variant="body1" sx={{ fontWeight: 700 }}>
+                  Hallo, {user?.username}
+                </Typography>
+                <Button
+                  onClick={logout}
+                  startIcon={<LogoutIcon />}
+                  sx={{ textTransform: 'none', fontWeight: 700, color: 'black'  }}
+                >
+                  Logout
+                </Button>
+              </Box>
             ) : (
               <Button
                 component={Link}
