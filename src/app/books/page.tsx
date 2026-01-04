@@ -1,66 +1,163 @@
-import Image from "next/image";
-import styles from "../page.module.css";
+'use client';
 
-export default function Home() {
+import { useMemo, useState } from 'react';
+import { Alert, Box, Button, Checkbox, FormControl, FormControlLabel, InputLabel, MenuItem, Pagination, Paper, Select, Stack, TextField, Typography } from '@mui/material';
+import Rating from '@mui/material/Rating';
+import { useAuth } from '@/context/AuthContext';
+import type { Buchart, Buch, Page } from '@/lib/books';
+import { searchBooks } from '@/lib/books';
+import { BookCard } from '@/components/BookCard';
+
+const ART_OPTIONS: Buchart[] = ['EPUB', 'HARDCOVER', 'PAPERBACK'];
+
+export default function BooksPage() {
+  const { accessToken } = useAuth();
+
+  const [titel, setTitel] = useState('');
+  const [isbn, setIsbn] = useState('');
+  const [art, setArt] = useState<Buchart | ''>('');
+  const [lieferbar, setLieferbar] = useState(false);
+  const [rating, setRating] = useState<number | null>(null);
+
+  const [pageUi, setPageUi] = useState(1);
+  const [data, setData] = useState<Page<Buch> | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const totalPages = useMemo(() => {
+    return data?.page.totalPages ?? 1;
+  }, [data]);
+
+  async function runSearch(nextPageUi = 1) {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await searchBooks(
+        {
+          titel: titel.trim() || undefined,
+          isbn: isbn.trim() || undefined,
+          art: art || undefined,
+          lieferbar: lieferbar ? true : undefined,
+          rating,
+          page: nextPageUi,
+          size: 10,
+        },
+        accessToken ?? undefined,
+      );
+      setData(res);
+      setPageUi(nextPageUi);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Unbekannter Fehler');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function reset() {
+    setTitel('');
+    setIsbn('');
+    setArt('');
+    setLieferbar(false);
+    setRating(null);
+    setPageUi(1);
+    setData(null);
+    setError(null);
+  }
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <Box sx={{ px: 2, pb: 6 }}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '420px 1fr' }, gap: 4, alignItems: 'start' }}>
+        <Box>
+          <Typography variant="h3" sx={{ mb: 2 }}>
+            Suchfilter festlegen
+          </Typography>
+
+          <Typography sx={{ mb: 2, color: 'text.secondary', maxWidth: 360 }}>
+            Sie können mehrere Suchfilter gleichzeitig festlegen
+          </Typography>
+
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
+            <Button variant="text" onClick={reset} sx={{ textDecoration: 'underline' }}>
+              ZURÜCKSETZEN
+            </Button>
+          </Box>
+
+          <Stack spacing={2}>
+            <TextField label="Titel" value={titel} onChange={(e) => setTitel(e.target.value)} />
+
+            <TextField label="ISBN" value={isbn} onChange={(e) => setIsbn(e.target.value)} />
+
+            <FormControl>
+              <InputLabel id="art-label">Art</InputLabel>
+              <Select labelId="art-label" label="Art" value={art} onChange={(e) => setArt(e.target.value as Buchart | '')}>
+                <MenuItem value="">(egal)</MenuItem>
+                {ART_OPTIONS.map((a) => (
+                  <MenuItem key={a} value={a}>
+                    {a}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <Paper variant="outlined" sx={{ p: 1.5 }}>
+              <FormControlLabel
+                control={<Checkbox checked={lieferbar} onChange={(e) => setLieferbar(e.target.checked)} />}
+                label="Buch ist lieferbar"
+              />
+            </Paper>
+
+            <Paper variant="outlined" sx={{ p: 1.5, display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Rating
+                value={rating ?? 0}
+                onChange={(_, v) => setRating(v)}
+                max={5}
+              />
+              <Typography sx={{ textDecoration: 'underline' }}>Rating</Typography>
+              {rating !== null ? (
+                <Button size="small" variant="text" onClick={() => setRating(null)}>
+                  löschen
+                </Button>
+              ) : null}
+            </Paper>
+
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1 }}>
+              <Button variant="contained" onClick={() => runSearch(1)} disabled={loading}>
+                {loading ? 'Lädt...' : 'Anwenden'}
+              </Button>
+            </Box>
+
+            {error ? <Alert severity="error">{error}</Alert> : null}
+          </Stack>
+        </Box>
+
+        <Box>
+          <Stack spacing={3}>
+            {(data?.content ?? []).map((b) => (
+              <BookCard key={b.id} buch={b} />
+            ))}
+
+            {data && totalPages > 1 ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', pt: 2 }}>
+                <Pagination
+                  count={totalPages}
+                  page={pageUi}
+                  onChange={(_, p) => runSearch(p)}
+                />
+              </Box>
+            ) : null}
+
+            {data && (data.content?.length ?? 0) === 0 ? (
+              <Typography sx={{ color: 'text.secondary' }}>Keine Treffer.</Typography>
+            ) : null}
+
+            {!data ? (
+              <Typography sx={{ color: 'text.secondary' }}>
+                Setze Filter und klicke „Anwenden“, um Bücher zu laden.
+              </Typography>
+            ) : null}
+          </Stack>
+        </Box>
+      </Box>
+    </Box>
   );
 }
