@@ -14,7 +14,7 @@ import {
   Typography,
 } from '@mui/material';
 
-type SearchMode = 'title' | 'author' | 'isbn';
+type SearchMode = 'title' | 'price' | 'isbn';
 
 export function HomeSearchCard() {
   const router = useRouter();
@@ -67,10 +67,9 @@ export function HomeSearchCard() {
             row
             value={mode}
             onChange={(e) => setMode(e.target.value as SearchMode)}
-            sx={{ justifyContent: 'space-between', px: 1 }}
+            sx={{ justifyContent: 'center', px: 1 }}
           >
-            <FormControlLabel value="title" control={<Radio />} label="nach Titel" />
-            <FormControlLabel value="author" control={<Radio />} label="nach Author" />
+            <FormControlLabel sx={{ pr: 8 }}value="title" control={<Radio />} label="nach Titel" />
             <FormControlLabel value="isbn" control={<Radio />} label="nach ISBN" />
           </RadioGroup>
 

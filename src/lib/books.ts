@@ -63,6 +63,21 @@ export async function searchBooks(params: BuchSearchParams, token?: string) {
     cache: 'no-store',
   });
 
+   if (res.status === 404) {
+    const size = params.size ?? 10;
+    const number = (params.page ?? 1) - 1;
+
+    return {
+      content: [],
+      page: {
+        size,
+        number,
+        totalElements: 0,
+        totalPages: 0,
+      },
+    };
+  }
+
   if (!res.ok) {
     const text = await res.text().catch(() => '');
     throw new Error(`searchBooks failed: ${res.status} ${text}`);

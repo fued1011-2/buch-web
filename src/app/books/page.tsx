@@ -1,6 +1,7 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Alert, Box, Button, Checkbox, FormControl, FormControlLabel, InputLabel, MenuItem, Pagination, Paper, Select, Stack, TextField, Typography } from '@mui/material';
 import Rating from '@mui/material/Rating';
 import { useAuth } from '@/context/AuthContext';
@@ -28,14 +29,40 @@ export default function BooksPage() {
     return data?.page.totalPages ?? 1;
   }, [data]);
 
-  async function runSearch(nextPageUi = 1) {
+  const searchParams = useSearchParams();
+
+  type QuickSearch = { titel?: string; isbn?: string };
+
+  useEffect(() => {
+    const q = searchParams.get('q')?.trim() ?? '';
+    const mode = searchParams.get('mode');
+
+    if (!q || (mode !== 'title' && mode !== 'isbn')) return;
+
+    if (mode === 'title') {
+      setTitel(q);
+      setIsbn('');
+      void runSearch(1, { titel: q, isbn: '' });
+    } else {
+      setIsbn(q);
+      setTitel('');
+      void runSearch(1, { isbn: q, titel: '' });
+    }
+  }, []);
+
+
+  async function runSearch(nextPageUi = 1, quick?: QuickSearch) {
     setLoading(true);
     setError(null);
+
+    const titelToUse = quick?.titel ?? titel;
+    const isbnToUse = quick?.isbn ?? isbn;
+
     try {
       const res = await searchBooks(
         {
-          titel: titel.trim() || undefined,
-          isbn: isbn.trim() || undefined,
+          titel: titelToUse.trim() || undefined,
+          isbn: isbnToUse.trim() || undefined,
           art: art || undefined,
           lieferbar: lieferbar ? true : undefined,
           rating,
@@ -44,6 +71,7 @@ export default function BooksPage() {
         },
         accessToken ?? undefined,
       );
+
       setData(res);
       setPageUi(nextPageUi);
     } catch (e) {
@@ -65,9 +93,9 @@ export default function BooksPage() {
   }
 
   return (
-    <Box sx={{ px: 2, pb: 6 }}>
+    <Box sx={{ pl: { xs: 2, md: 6 }, pr: 2, pb: 6 }}>
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '420px 1fr' }, gap: 4, alignItems: 'start' }}>
-        <Box>
+        <Box sx={{ position: { md: 'sticky' }, top: 96, alignSelf: 'flex-start', maxHeight: 'calc(100vh - 120px)' }}>
           <Typography variant="h3" sx={{ mb: 2 }}>
             Suchfilter festlegen
           </Typography>
@@ -131,7 +159,13 @@ export default function BooksPage() {
         </Box>
 
         <Box>
-          <Stack spacing={3}>
+          <Stack
+            spacing={3}
+            sx={{
+              maxWidth: 1100,
+              mx: 'auto',
+            }}
+          >
             {(data?.content ?? []).map((b) => (
               <BookCard key={b.id} buch={b} />
             ))}
@@ -147,8 +181,15 @@ export default function BooksPage() {
             ) : null}
 
             {data && (data.content?.length ?? 0) === 0 ? (
-              <Typography sx={{ color: 'text.secondary' }}>Keine Treffer.</Typography>
-            ) : null}
+              <Paper variant="outlined" sx={{ p: 3 }}>
+                <Typography variant="h6" sx={{ mb: 1 }}>
+                  Keine Treffer
+                </Typography>
+                <Typography color="text.secondary">
+                  Zu deinen Suchfiltern wurden keine Bücher gefunden. Bitte ändere die Filter und versuche es erneut.
+                </Typography>
+              </Paper>
+          ) : null}
 
             {!data ? (
               <Typography sx={{ color: 'text.secondary' }}>
