@@ -25,9 +25,10 @@ import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
 import MenuIcon from '@mui/icons-material/Menu';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import { Person2 } from '@mui/icons-material';
 
 import { useAuth } from '../context/AuthContext';
-import { Person2 } from '@mui/icons-material';
 
 const drawerWidthCollapsed = 72;
 const drawerWidthExpanded = 240;
@@ -40,11 +41,16 @@ type Props = {
 
 export function AppShell({ children }: Props) {
   const pathname = usePathname();
-  const { authenticated, user, logout } = useAuth();
+  const { authenticated, user, logout, isAdmin } = useAuth();
 
   const [open, setOpen] = useState(false);
 
   const drawerWidth = open ? drawerWidthExpanded : drawerWidthCollapsed;
+
+  const isHomeSelected = pathname === '/';
+  const isNewSelected = pathname.startsWith('/books/new');
+  // "Suche" soll /books* selektieren, aber nicht /books/new (damit nicht beide gleichzeitig "aktiv" sind)
+  const isSearchSelected = pathname.startsWith('/books') && !isNewSelected;
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
@@ -104,13 +110,9 @@ export function AppShell({ children }: Props) {
             },
           }}
         >
+          {/* Home */}
           {open ? (
-            <ListItemButton
-              component={Link}
-              href="/"
-              selected={pathname === '/'}
-              sx={{ py: 1.5, px: 2 }}
-            >
+            <ListItemButton component={Link} href="/" selected={isHomeSelected} sx={{ py: 1.5, px: 2 }}>
               <ListItemIcon sx={{ minWidth: 0, mr: 2 }}>
                 <HomeIcon />
               </ListItemIcon>
@@ -121,7 +123,7 @@ export function AppShell({ children }: Props) {
               <ListItemButton
                 component={Link}
                 href="/"
-                selected={pathname === '/'}
+                selected={isHomeSelected}
                 sx={{ justifyContent: 'center', py: 1.8 }}
               >
                 <ListItemIcon sx={{ minWidth: 0 }}>
@@ -131,13 +133,9 @@ export function AppShell({ children }: Props) {
             </Tooltip>
           )}
 
+          {/* Suche */}
           {open ? (
-            <ListItemButton
-              component={Link}
-              href="/books"
-              selected={pathname.startsWith('/books')}
-              sx={{ py: 1.5, px: 2 }}
-            >
+            <ListItemButton component={Link} href="/books" selected={isSearchSelected} sx={{ py: 1.5, px: 2 }}>
               <ListItemIcon sx={{ minWidth: 0, mr: 2 }}>
                 <SearchIcon />
               </ListItemIcon>
@@ -148,7 +146,7 @@ export function AppShell({ children }: Props) {
               <ListItemButton
                 component={Link}
                 href="/books"
-                selected={pathname.startsWith('/books')}
+                selected={isSearchSelected}
                 sx={{ justifyContent: 'center', py: 1.8 }}
               >
                 <ListItemIcon sx={{ minWidth: 0 }}>
@@ -157,6 +155,35 @@ export function AppShell({ children }: Props) {
               </ListItemButton>
             </Tooltip>
           )}
+
+          {authenticated && isAdmin ? (
+            open ? (
+              <ListItemButton
+                component={Link}
+                href="/books/new"
+                selected={isNewSelected}
+                sx={{ py: 1.5, px: 2 }}
+              >
+                <ListItemIcon sx={{ minWidth: 0, mr: 2 }}>
+                  <AddCircleOutlineIcon />
+                </ListItemIcon>
+                <ListItemText primary="Neu anlegen" />
+              </ListItemButton>
+            ) : (
+              <Tooltip title="Neu anlegen" placement="right">
+                <ListItemButton
+                  component={Link}
+                  href="/books/new"
+                  selected={isNewSelected}
+                  sx={{ justifyContent: 'center', py: 1.8 }}
+                >
+                  <ListItemIcon sx={{ minWidth: 0 }}>
+                    <AddCircleOutlineIcon />
+                  </ListItemIcon>
+                </ListItemButton>
+              </Tooltip>
+            )
+          ) : null}
         </List>
       </Drawer>
 
@@ -196,7 +223,7 @@ export function AppShell({ children }: Props) {
                 <Button
                   onClick={logout}
                   startIcon={<LogoutIcon />}
-                  sx={{ textTransform: 'none', fontWeight: 700, color: 'black'  }}
+                  sx={{ textTransform: 'none', fontWeight: 700, color: 'black' }}
                 >
                   Logout
                 </Button>
