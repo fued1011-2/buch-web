@@ -1,66 +1,95 @@
-import Image from "next/image";
-import styles from "../../page.module.css";
+'use client';
 
-export default function Home() {
+
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { Alert, Box, Button, Typography } from '@mui/material';
+import { useAuth } from '@/context/AuthContext';
+import type { Buch } from '@/lib/books';
+import { getBookById } from '@/lib/books';
+import { BookDetailCard } from '@/components/BookDetailCard';
+
+export default function BookDetailPage() {
+  const router = useRouter();
+  const params = useParams<{ id: string }>();
+  const { accessToken } = useAuth();
+  const searchParams = useSearchParams();
+
+  const [buch, setBuch] = useState<Buch | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [showCreatedMsg, setShowCreatedMsg] = useState(false);
+
+
+  const id = Number(params.id);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function load() {
+      if (!Number.isFinite(id)) {
+        setError('Ungültige Buch-ID.');
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      setError(null);
+
+      if (searchParams.get('created') === '1') {
+        setShowCreatedMsg(true);
+      }
+
+      try {
+        const data = await getBookById(id, accessToken ?? undefined);
+        if (!cancelled) setBuch(data);
+      } catch (e) {
+        if (!cancelled) {
+          setError(e instanceof Error ? e.message : 'Buch konnte nicht geladen werden.');
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, [id, accessToken, searchParams]);
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <Box sx={{ px: 2, pb: 6 }}>
+      <Typography variant="h2" align="center" sx={{ fontWeight: 800, my: 4 }}>
+        {showCreatedMsg ? 'Neues Buch erfolgreich angelegt!' : 'Detailansicht'}
+      </Typography>
+
+      <Box sx={{ width: 'min(1200px, 92vw)', mx: 'auto' }}>
+        <Button
+          variant="contained"
+          onClick={() => router.back()}
+          sx={{ mb: 3, width: 140 }}
+        >
+          ZURÜCK
+        </Button>
+      </Box>
+
+      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+        {loading ? (
+          <Typography sx={{ color: 'text.secondary' }}>Lädt...</Typography>
+        ) : error ? (
+          <Box sx={{ width: 'min(1200px, 92vw)' }}>
+            <Alert severity="error">{error}</Alert>
+          </Box>
+        ) : buch ? (
+          <BookDetailCard buch={buch} />
+        ) : (
+          <Box sx={{ width: 'min(1200px, 92vw)' }}>
+            <Alert severity="warning">Kein Buch gefunden.</Alert>
+          </Box>
+        )}
+      </Box>
+    </Box>
   );
 }
