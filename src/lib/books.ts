@@ -33,7 +33,7 @@ export type BuchSearchParams = {
   isbn?: string;
   art?: Buchart | '';
   lieferbar?: boolean;
-  rating?: number | undefined;
+  rating?: number | null;
   page?: number;
   size?: number;
 };
