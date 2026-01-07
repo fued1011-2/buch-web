@@ -66,7 +66,7 @@ export default function BooksPage() {
           art: art || undefined,
           lieferbar: lieferbar ? true : undefined,
           rating,
-          page: nextPageUi,
+          page: nextPageUi + 1,
           size: 10,
         },
         accessToken ?? undefined,
