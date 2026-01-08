@@ -30,7 +30,7 @@ export default function LoginPage() {
     try {
       const tokenData = await login(username, password);
       loginWithAccessToken(tokenData.access_token);
-      router.replace('/books');
+      router.replace('/');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login fehlgeschlagen');
     } finally {

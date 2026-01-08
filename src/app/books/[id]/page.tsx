@@ -68,7 +68,7 @@ export default function BookDetailPage() {
       <Box sx={{ width: 'min(1200px, 92vw)', mx: 'auto' }}>
         <Button
           variant="contained"
-          onClick={() => router.back()}
+          onClick={() => router.replace('/books')}
           sx={{ mb: 3, width: 140 }}
         >
           ZURÜCK
