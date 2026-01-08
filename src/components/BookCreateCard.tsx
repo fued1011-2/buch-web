@@ -1,6 +1,6 @@
 'use client';
 
-import type { RefObject } from 'react';
+import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
 import {
   Alert,
   Box,
@@ -21,75 +21,88 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 
 import type { Buchart } from '@/lib/books';
 
-const ART_OPTIONS: Buchart[] = ['EPUB', 'HARDCOVER', 'PAPERBACK'];
+type FieldName = 'titel' | 'isbn' | 'preis' | 'rabatt' | 'homepage' | 'datum' | 'rating';
+type FieldErrors = Partial<Record<FieldName, string>>;
+type Touched = Partial<Record<FieldName, boolean>>;
 
 type Props = {
   isAdmin: boolean;
 
   titel: string;
-  setTitel: (v: string) => void;
+  setTitel: Dispatch<SetStateAction<string>>;
 
   isbn: string;
-  setIsbn: (v: string) => void;
+  setIsbn: Dispatch<SetStateAction<string>>;
 
   preis: string;
-  setPreis: (v: string) => void;
+  setPreis: Dispatch<SetStateAction<string>>;
 
   rabatt: string;
-  setRabatt: (v: string) => void;
+  setRabatt: Dispatch<SetStateAction<string>>;
 
   homepage: string;
-  setHomepage: (v: string) => void;
+  setHomepage: Dispatch<SetStateAction<string>>;
 
   datum: string;
-  setDatum: (v: string) => void;
+  setDatum: Dispatch<SetStateAction<string>>;
 
   rating: number | null;
-  setRating: (v: number | null) => void;
+  setRating: Dispatch<SetStateAction<number | null>>;
 
   lieferbar: boolean;
-  setLieferbar: (v: boolean) => void;
+  setLieferbar: Dispatch<SetStateAction<boolean>>;
 
   art: Buchart | '';
-  setArt: (v: Buchart | '') => void;
+  setArt: Dispatch<SetStateAction<Buchart | ''>>;
+
+  artOptions: Buchart[];
 
   loading: boolean;
   canSubmit: boolean;
 
   error: string | null;
-
   onSubmit: (e: React.FormEvent) => void;
 
-  dateInputRef: RefObject<HTMLInputElement | null>;
+  dateInputRef: MutableRefObject<HTMLInputElement | null>;
+
+  // NEU
+  touched: Touched;
+  markTouched: (name: FieldName) => void;
+  fieldErrors: FieldErrors;
 };
 
-export function BookCreateCard(props: Props) {
-  const {
-    isAdmin,
-    titel,
-    setTitel,
-    isbn,
-    setIsbn,
-    preis,
-    setPreis,
-    rabatt,
-    setRabatt,
-    homepage,
-    setHomepage,
-    datum,
-    setDatum,
-    rating,
-    setRating,
-    lieferbar,
-    setLieferbar,
-    art,
-    setArt,
-    loading,
-    canSubmit,
-    error,
-    onSubmit,
-    dateInputRef,
-  } = props;
+export function BookCreateCard({
+  isAdmin,
+  titel,
+  setTitel,
+  isbn,
+  setIsbn,
+  preis,
+  setPreis,
+  rabatt,
+  setRabatt,
+  homepage,
+  setHomepage,
+  datum,
+  setDatum,
+  rating,
+  setRating,
+  lieferbar,
+  setLieferbar,
+  art,
+  setArt,
+  artOptions,
+  loading,
+  canSubmit,
+  error,
+  onSubmit,
+  dateInputRef,
+  touched,
+  markTouched,
+  fieldErrors,
+}: Props) {
+  const helper = (name: FieldName) => (touched[name] ? fieldErrors[name] : undefined);
+  const hasError = (name: FieldName) => Boolean(touched[name] && fieldErrors[name]);
 
   return (
     <Box
@@ -115,7 +128,7 @@ export function BookCreateCard(props: Props) {
       >
         {!isAdmin ? (
           <Alert severity="warning" sx={{ mb: 2 }}>
-            Du bist nicht als Admin eingeloggt. Das Anlegen wird vom Backend per 403 Forbidden abgelehnt.
+            Du bist nicht als Admin eingeloggt. Das Anlegen wird vom Backend per `403 Forbidden` abgelehnt.
           </Alert>
         ) : null}
 
@@ -133,46 +146,66 @@ export function BookCreateCard(props: Props) {
             alignItems: 'start',
           }}
         >
-          <Stack spacing={3}>
+          {/* LEFT */}
+          <Stack spacing={4}>
             <TextField
               label="Titel *"
               value={titel}
               onChange={(e) => setTitel(e.target.value)}
+              onBlur={() => markTouched('titel')}
               required
               fullWidth
+              error={hasError('titel')}
+              helperText={helper('titel')}
             />
+
             <TextField
               label="ISBN *"
               value={isbn}
               onChange={(e) => setIsbn(e.target.value)}
+              onBlur={() => markTouched('isbn')}
               required
               fullWidth
+              error={hasError('isbn')}
+              helperText={helper('isbn')}
             />
+
             <TextField
               label="Preis *"
               value={preis}
               onChange={(e) => setPreis(e.target.value)}
+              onBlur={() => markTouched('preis')}
               required
               fullWidth
               inputMode="decimal"
+              error={hasError('preis')}
+              helperText={helper('preis')}
             />
+
             <TextField
               label="Rabatt"
               value={rabatt}
               onChange={(e) => setRabatt(e.target.value)}
+              onBlur={() => markTouched('rabatt')}
               fullWidth
               inputMode="decimal"
-              helperText="in Prozent (z.B. 10 für 10%)"
+              error={hasError('rabatt')}
+              helperText={helper('rabatt') ?? 'in Prozent (z.B. 10 für 10%)'}
             />
+
             <TextField
               label="Homepage"
               value={homepage}
               onChange={(e) => setHomepage(e.target.value)}
+              onBlur={() => markTouched('homepage')}
               fullWidth
+              error={hasError('homepage')}
+              helperText={helper('homepage')}
             />
           </Stack>
 
-          <Stack spacing={6.5}>
+          {/* RIGHT */}
+          <Stack spacing={4}>
             <TextField
               inputRef={(el) => {
                 dateInputRef.current = el;
@@ -181,8 +214,11 @@ export function BookCreateCard(props: Props) {
               type="date"
               value={datum}
               onChange={(e) => setDatum(e.target.value)}
+              onBlur={() => markTouched('datum')}
               fullWidth
               InputLabelProps={{ shrink: true }}
+              error={hasError('datum')}
+              helperText={helper('datum')}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -205,6 +241,11 @@ export function BookCreateCard(props: Props) {
               </Typography>
               <Rating value={rating ?? 0} onChange={(_, v) => setRating(v)} max={5} />
             </Box>
+            {helper('rating') ? (
+              <Typography sx={{ mt: -2, color: 'error.main', fontSize: 12 }}>
+                {helper('rating')}
+              </Typography>
+            ) : null}
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
               <Typography sx={{ minWidth: 140, color: 'text.secondary', fontSize: 28 }}>
@@ -227,7 +268,7 @@ export function BookCreateCard(props: Props) {
                   onChange={(e) => setArt(e.target.value as Buchart | '')}
                 >
                   <MenuItem value="">(leer)</MenuItem>
-                  {ART_OPTIONS.map((a) => (
+                  {artOptions.map((a) => (
                     <MenuItem key={a} value={a}>
                       {a}
                     </MenuItem>
