@@ -5,7 +5,6 @@ import { HomeSearchCard } from '../components/HomeSearchCard';
 export default function HomePage() {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-      {/* HERO */}
       <Paper
         elevation={6}
         sx={{
@@ -26,7 +25,6 @@ export default function HomePage() {
           />
         </Box>
 
-        {/* Overlay-Text */}
         <Box
           sx={{
             position: 'absolute',
@@ -53,7 +51,6 @@ export default function HomePage() {
         </Box>
       </Paper>
 
-      {/* SEARCH CARD */}
       <HomeSearchCard />
     </Box>
   );

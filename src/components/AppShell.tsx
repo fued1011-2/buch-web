@@ -49,7 +49,6 @@ export function AppShell({ children }: Props) {
 
   const isHomeSelected = pathname === '/';
   const isNewSelected = pathname.startsWith('/books/new');
-  // "Suche" soll /books* selektieren, aber nicht /books/new (damit nicht beide gleichzeitig "aktiv" sind)
   const isSearchSelected = pathname.startsWith('/books') && !isNewSelected;
 
   return (
@@ -110,7 +109,6 @@ export function AppShell({ children }: Props) {
             },
           }}
         >
-          {/* Home */}
           {open ? (
             <ListItemButton component={Link} href="/" selected={isHomeSelected} sx={{ py: 1.5, px: 2 }}>
               <ListItemIcon sx={{ minWidth: 0, mr: 2 }}>
@@ -133,7 +131,6 @@ export function AppShell({ children }: Props) {
             </Tooltip>
           )}
 
-          {/* Suche */}
           {open ? (
             <ListItemButton component={Link} href="/books" selected={isSearchSelected} sx={{ py: 1.5, px: 2 }}>
               <ListItemIcon sx={{ minWidth: 0, mr: 2 }}>

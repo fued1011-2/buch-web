@@ -22,9 +22,7 @@ function formatPercent(value: unknown): string {
 
 function formatDate(value: unknown): string {
   if (!value) return '-';
-  // kommt oft als ISO string
   const s = String(value);
-  // "2022-02-01T..." -> "2022-02-01"
   return s.includes('T') ? s.split('T')[0] : s;
 }
 
@@ -59,7 +57,6 @@ export function BookDetailCard({ buch }: { buch: Buch }) {
           alignItems: 'center',
         }}
       >
-        {/* LEFT: Info */}
         <Box sx={{ pl: { md: 2 } }}>
           <Typography variant="h5" sx={{ fontWeight: 500, mb: 1 }}>
             {title}
@@ -98,7 +95,6 @@ export function BookDetailCard({ buch }: { buch: Buch }) {
           </Stack>
         </Box>
 
-        {/* RIGHT: Cover */}
         <Box sx={{ display: 'flex', justifyContent: 'center' }}>
           <Box
             component="img"

@@ -65,7 +65,6 @@ type Props = {
 
   dateInputRef: MutableRefObject<HTMLInputElement | null>;
 
-  // NEU
   touched: Touched;
   markTouched: (name: FieldName) => void;
   fieldErrors: FieldErrors;
@@ -146,7 +145,6 @@ export function BookCreateCard({
             alignItems: 'start',
           }}
         >
-          {/* LEFT */}
           <Stack spacing={4}>
             <TextField
               label="Titel *"
@@ -204,7 +202,6 @@ export function BookCreateCard({
             />
           </Stack>
 
-          {/* RIGHT */}
           <Stack spacing={4}>
             <TextField
               inputRef={(el) => {
