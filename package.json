@@ -10,21 +10,24 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier . --write",
-    "format:check": "prettier . --check"
+    "format:check": "prettier . --check",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
     "@emotion/cache": "^11.14.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
-    "@mui/icons-material": "^7.3.6",
-    "@mui/material": "^7.3.6",
-    "@mui/material-nextjs": "^7.3.6",
+    "@mui/icons-material": "^7.3.7",
+    "@mui/material": "^7.3.7",
+    "@mui/material-nextjs": "^7.3.7",
     "jwt-decode": "^4.0.0",
     "next": "^16.1.1",
     "react": "^19.2.3",
     "react-dom": "^19.2.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.57.0",
     "@types/node": "^25.0.3",
     "@types/react": "^19",
     "@types/react-dom": "^19",
